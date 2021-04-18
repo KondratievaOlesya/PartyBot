@@ -9,4 +9,5 @@
 
 ## Участники
 Кондратьева Олеся Анатольевна, 528 группа, [github](https://github.com/KondratievaOlesya)
+
 Кудина София Игоревна, [github](https://github.com/SofiaKudina)
