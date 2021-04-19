@@ -95,13 +95,15 @@ def time(update: Update, _: CallbackContext) -> int:
 
     mess = update.message.text
     req_time = request_data['date']
-    if req_time == 'Утро':
+    req_from = request_data['date']
+    req_to = request_data['date']
+    if mess == 'Утро':
         req_from = req_time.replace(hour=6)
         req_to = req_time.replace(hour=12)
-    elif req_time == 'День':
+    elif mess == 'День':
         req_from = req_time.replace(hour=12)
         req_to = req_time.replace(hour=16)
-    elif req_time == 'Вечер':
+    elif mess == 'Вечер':
         req_from = req_time.replace(hour=16)
         req_to = req_time + dt.timedelta(days=1)
         req_to = req_to.replace(hour=6)
