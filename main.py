@@ -1,6 +1,7 @@
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler
 from dotenv import dotenv_values
+import datetime
 import tools
 
 config = dotenv_values(".env")
@@ -31,10 +32,10 @@ def location(update: Update, _: CallbackContext) -> int:
         update.message.reply_text(
             f'Поиск будет производиться по городу {city.lower().capitalize()}'
         )
-        data_variants = [['Сегодня', 'Завтра', 'На определенную дату']]
+        data_variants = [['Сегодня', 'Завтра', 'Дата']]
         update.message.reply_text(
             'На какой день тебе интересны события?',
-            reply_markup=ReplyKeyboardMarkup(data_variants, one_time_keyboard=True)
+            reply_markup=ReplyKeyboardMarkup(data_variants, one_time_keyboard=True, resize_keyboard=True),
         )
         return DATE
     else:
@@ -48,7 +49,14 @@ def location(update: Update, _: CallbackContext) -> int:
 
 
 def date(update: Update, _: CallbackContext) -> int:
-    user = update.message.from_user
+    answer = update.message.text
+    req_date = ''
+    if answer == 'Сегодня':
+        req_date = datetime.datetime.now()
+    elif answer == 'Завтра':
+        req_date = datetime.datetime.now()
+    else:
+        pass
     update.message.reply_text(f'{update.message.text}')
     return TIME
 
