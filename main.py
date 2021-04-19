@@ -1,25 +1,32 @@
-import telebot
+from telegram import Update, ForceReply
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from dotenv import dotenv_values
 
-bot = telebot.TeleBot('')
-
-
-@bot.message_handler(content_types=['text'])
-def start(message):
-    if message.text == "/start":
-        bot.send_message(message.from_user.id, "Привет, я помогу тебе найти тусовки. Ответь на пару вопросов")
-        bot.send_message(message.from_user.id, 'На какую дату ты ищешь события?')
-        bot.register_next_step_handler(message, get_date)
-    elif message.text == "/help":
-        # @TODO Help page
-        bot.send_message(message.from_user.id, "Напиши привет")
-    else:
-        bot.send_message(message.from_user.id, "Я тебя не понимаю. Напиши /help.")
+config = dotenv_values(".env")
 
 
-def get_date(message):
-    # @TODO Check data >= today
-    print(message)
-    bot.send_message(message.from_user.id, 'На какую дату ты ищешь события?')
+def start(update: Update, _: CallbackContext) -> None:
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Привет! Ответь на пару вопросов')
 
 
-bot.polling(none_stop=True, interval=0)
+def help_command(update: Update, _: CallbackContext) -> None:
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Help!')
+
+
+def main() -> None:
+    """Start the bot."""
+    updater = Updater(config['TOKEN'])
+    dispatcher = updater.dispatcher
+
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("help", help_command))
+
+    # Start the Bot
+    updater.start_polling()
+    updater.idle()
+
+
+if __name__ == '__main__':
+    main()
