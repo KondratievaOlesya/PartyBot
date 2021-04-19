@@ -3,12 +3,14 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from dotenv import dotenv_values
 import datetime as dt
 from datetime import datetime
+
 import tools
 
 config = dotenv_values(".env")
 
-LOCATION, DATE, TIME = range(3)
+LOCATION, DATE, TIME, REQUEST = range(4)
 SUPPORTED_CITY = ['москва']
+request_data = {}
 
 
 def start(update: Update, _: CallbackContext) -> None:
@@ -30,6 +32,7 @@ def check_location(city):
 def location(update: Update, _: CallbackContext) -> int:
     city = update.message.text
     if check_location(city):
+        request_data['city'] = city
         update.message.reply_text(
             f'Поиск будет производиться по городу {city.lower().capitalize()}'
         )
@@ -71,16 +74,42 @@ def date(update: Update, _: CallbackContext) -> int:
                 reply_markup=ReplyKeyboardRemove()
             )
             return DATE
-
+    request_data['date'] = req_date
     update.message.reply_text(
         f'Поиск на {req_date.strftime("%d.%m")}',
         reply_markup=ReplyKeyboardRemove()
     )
-    update.message.reply_text(f'Укажи время, которое тебе интересно')
+    time_variants = [['Утро', 'День', 'Вечер']]
+    update.message.reply_text(
+        f'Укажи время, которое тебе интересно',
+        reply_markup=ReplyKeyboardMarkup(time_variants, one_time_keyboard=True, resize_keyboard=True)
+    )
     return TIME
 
 
 def time(update: Update, _: CallbackContext) -> int:
+    from_reg = ''
+    from_to_reg = ''
+    to_reg = ''
+    period_reg = ''
+
+    mess = update.message.text
+    req_time = request_data['date']
+    if req_time == 'Утро':
+        req_from = req_time.replace(hour=6)
+        req_to = req_time.replace(hour=12)
+    elif req_time == 'День':
+        req_from = req_time.replace(hour=12)
+        req_to = req_time.replace(hour=16)
+    elif req_time == 'Вечер':
+        req_from = req_time.replace(hour=16)
+        req_to = req_time + dt.timedelta(days=1)
+        req_to = req_to.replace(hour=6)
+    else:
+        pass
+
+    request_data['date_from'] = req_from
+    request_data['date_to'] = req_to
     return ConversationHandler.END
 
 
@@ -109,6 +138,7 @@ def main() -> None:
             LOCATION: [MessageHandler(Filters.text & ~Filters.command, location)],
             DATE: [MessageHandler(Filters.text & ~Filters.command, date)],
             TIME: [MessageHandler(Filters.text & ~Filters.command, time)],
+            REQUEST: []
         },
         fallbacks=[CommandHandler('cancel', cancel)],
     )
