@@ -1,7 +1,8 @@
-from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler
 from dotenv import dotenv_values
-import datetime
+import datetime as dt
+from datetime import datetime
 import tools
 
 config = dotenv_values(".env")
@@ -50,14 +51,32 @@ def location(update: Update, _: CallbackContext) -> int:
 
 def date(update: Update, _: CallbackContext) -> int:
     answer = update.message.text
-    req_date = ''
     if answer == 'Сегодня':
-        req_date = datetime.datetime.now()
+        req_date = datetime.now()
     elif answer == 'Завтра':
-        req_date = datetime.datetime.now()
+        req_date = datetime.now() + dt.timedelta(days=1)
+    elif answer == 'Дата':
+        update.message.reply_text(
+            'Укажи дату в формате ДД.ММ \n',
+            reply_markup=ReplyKeyboardRemove()
+        )
+        return DATE
     else:
-        pass
-    update.message.reply_text(f'{update.message.text}')
+        try:
+            req_date = datetime.strptime(answer, '%d.%m')
+        except Exception as e:
+            update.message.reply_text(
+                'Я не понимаю формат. Укажи дату в формате ДД.ММ \n'
+                'Либо закончи разговор вызвав команду /cancel',
+                reply_markup=ReplyKeyboardRemove()
+            )
+            return DATE
+
+    update.message.reply_text(
+        f'Поиск на {req_date.strftime("%d.%m")}',
+        reply_markup=ReplyKeyboardRemove()
+    )
+    update.message.reply_text(f'Укажи время, которое тебе интересно')
     return TIME
 
 
