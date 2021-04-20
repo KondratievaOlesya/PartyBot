@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from dotenv import dotenv_values
 import datetime as dt
 from datetime import datetime
+import re
 
 import tools
 
@@ -39,7 +40,7 @@ def location(update: Update, _: CallbackContext) -> int:
         data_variants = [['Сегодня', 'Завтра', 'Дата']]
         update.message.reply_text(
             'На какой день тебе интересны события?',
-            reply_markup=ReplyKeyboardMarkup(data_variants, one_time_keyboard=True, resize_keyboard=True),
+            reply_markup=ReplyKeyboardMarkup(data_variants, resize_keyboard=True),
         )
         return DATE
     else:
@@ -70,8 +71,7 @@ def date(update: Update, _: CallbackContext) -> int:
         except Exception as e:
             update.message.reply_text(
                 'Я не понимаю формат. Укажи дату в формате ДД.ММ \n'
-                'Либо закончи разговор вызвав команду /cancel',
-                reply_markup=ReplyKeyboardRemove()
+                'Либо закончи разговор вызвав команду /cancel'
             )
             return DATE
     request_data['date'] = req_date
@@ -82,21 +82,68 @@ def date(update: Update, _: CallbackContext) -> int:
     time_variants = [['Утро', 'День', 'Вечер']]
     update.message.reply_text(
         f'Укажи время, которое тебе интересно',
-        reply_markup=ReplyKeyboardMarkup(time_variants, one_time_keyboard=True, resize_keyboard=True)
+        reply_markup=ReplyKeyboardMarkup(time_variants, resize_keyboard=True)
     )
     return TIME
 
 
-def time(update: Update, _: CallbackContext) -> int:
-    from_reg = ''
-    from_to_reg = ''
-    to_reg = ''
-    period_reg = ''
+def get_hours_minutes(time_str):
+    minutes = '00'
+    sep = time_str.find(':')
+    if sep != -1:
+        hours, minutes = time_str.split(':')
+    else:
+        hours = time_str
+    return int(hours), int(minutes)
 
+
+def extract_time(req_date, message):
+    time_reg = r'[0-2]?[0-9](?:\:[0-5][0-9])?'
+    time_regs = [
+        rf'с {time_reg}$',
+        rf'с {time_reg} до {time_reg}$',
+        rf'до {time_reg}$',
+        rf'{time_reg}[ ]*-[ ]*{time_reg}$',
+        rf'{time_reg}$'
+    ]
+    matched = False
+    req_from = req_date
+    req_to = req_date
+    for reg in time_regs:
+        if re.fullmatch(reg, message) is not None:
+            matched = True
+            times = re.findall(time_reg, message)
+            print(times)
+            if len(times) == 2:
+                from_h, from_m = get_hours_minutes(times[0])
+                to_h, to_m = get_hours_minutes(times[1])
+                req_from = req_date.replace(hour=from_h, minute=from_m)
+                req_to = req_date.replace(hour=to_h, minute=to_m)
+                if req_from < req_to:
+                    req_to += dt.timedelta(days=1)
+            elif len(times) == 1:
+                if 'до' == reg[:2]:
+                    to_h, to_m = get_hours_minutes(times[0])
+                    req_from = req_date.replace(hour=0, minute=0)
+                    req_to = req_date.replace(hour=to_h, minute=to_m)
+
+                    # Check if it is obvious
+                    if to_h < 6:
+                        req_to += dt.timedelta(days=1)
+                else:
+                    from_h, from_m = get_hours_minutes(times[0])
+                    req_from = req_date.replace(hour=from_h, minute=from_m)
+                    req_to = req_date.replace(hour=23, minute=59)
+            break
+    if matched:
+        return req_from, req_to
+    else:
+        return None
+
+
+def time(update: Update, _: CallbackContext) -> int:
     mess = update.message.text
     req_time = request_data['date']
-    req_from = request_data['date']
-    req_to = request_data['date']
     if mess == 'Утро':
         req_from = req_time.replace(hour=6)
         req_to = req_time.replace(hour=12)
@@ -108,10 +155,22 @@ def time(update: Update, _: CallbackContext) -> int:
         req_to = req_time + dt.timedelta(days=1)
         req_to = req_to.replace(hour=6)
     else:
-        pass
-
+        res = extract_time(req_time, mess)
+        print(res)
+        if res is not None:
+            req_from, req_to = res
+        else:
+            update.message.reply_text(
+                'Я не смог понять время, попробуй ввести еще раз\n'
+                'Либо закончи разговор вызвав команду /cancel'
+            )
+            return TIME
     request_data['date_from'] = req_from
     request_data['date_to'] = req_to
+    update.message.reply_text(
+        f'Поиск с {req_from.strftime("%d.%m %-H:%M")} до {req_to.strftime("%d.%m %-H:%M")}',
+        reply_markup=ReplyKeyboardRemove()
+    )
     return ConversationHandler.END
 
 
