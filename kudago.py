@@ -1,7 +1,11 @@
 """Request to https://kudago.com/ for events"""
 import datetime
 import requests
+import logging
+from dotenv import dotenv_values
 
+config = dotenv_values(".env")
+logging.basicConfig(filename=config['LOG_FILE'], encoding='utf-8', level=logging.DEBUG)
 LOCATION = {
     'москва': 'msk'
 }
@@ -167,6 +171,7 @@ def send_request(user_request):
         date_from=date_from,
         date_to=date_to
     )
+    logging.info(f'[KUDAGO] Requests to {request_link}.')
     response = requests.get(request_link)
     messages = response.json()
     result = parse_response(messages, user_request)
