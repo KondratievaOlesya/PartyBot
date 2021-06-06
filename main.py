@@ -14,7 +14,12 @@ config = dotenv_values(".env")
 MAX_MESSAGE_LEN = 1000
 LOCATION, DATE, TIME, REQUEST = range(4)
 SUPPORTED_CITY = ['москва']
-request_data = {}
+request_data = {
+    'city': '',
+    'date': '',
+    'date_from': '',
+    'date_to': ''
+}
 
 
 def start(update: Update, _: CallbackContext) -> None:
@@ -71,6 +76,7 @@ def date(update: Update, _: CallbackContext) -> int:
     else:
         try:
             req_date = datetime.strptime(answer, '%d.%m')
+            req_date = req_date.replace(year=datetime.today().year)
         except Exception as e:
             update.message.reply_text(
                 'Я не понимаю формат. Укажи дату в формате ДД.ММ \n'
@@ -148,15 +154,15 @@ def time(update: Update, _: CallbackContext) -> int:
     mess = update.message.text
     req_time = request_data['date']
     if mess == 'Утро':
-        req_from = req_time.replace(hour=6)
-        req_to = req_time.replace(hour=12)
+        req_from = req_time.replace(hour=6, minute=0)
+        req_to = req_time.replace(hour=12, minute=0)
     elif mess == 'День':
-        req_from = req_time.replace(hour=12)
-        req_to = req_time.replace(hour=16)
+        req_from = req_time.replace(hour=12, minute=0)
+        req_to = req_time.replace(hour=16, minute=0)
     elif mess == 'Вечер':
-        req_from = req_time.replace(hour=16)
-        req_to = req_time + dt.timedelta(days=1)
-        req_to = req_to.replace(hour=6)
+        req_from = req_time.replace(hour=16, minute=0)
+        req_to = req_from + dt.timedelta(days=1)
+        req_to = req_to.replace(hour=6, minute=0)
     else:
         res = extract_time(req_time, mess)
         print(res)
@@ -170,7 +176,6 @@ def time(update: Update, _: CallbackContext) -> int:
             return TIME
     request_data['date_from'] = req_from
     request_data['date_to'] = req_to
-    print(update)
     update.message.reply_text(
         f'Поиск с {req_from.strftime("%d.%m %H:%M")} до {req_to.strftime("%d.%m %H:%M")}',
         reply_markup=ReplyKeyboardRemove()
@@ -196,6 +201,7 @@ def to_pages(messages):
 
 
 def show_events(update):
+    print(request_data)
     kudago = request.kudago(request_data)
     print(kudago)
     pages = to_pages(kudago)
