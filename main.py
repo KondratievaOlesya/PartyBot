@@ -7,7 +7,7 @@ from datetime import datetime
 import re
 
 import tools
-import request
+import kudago
 
 config = dotenv_values(".env")
 
@@ -201,10 +201,8 @@ def to_pages(messages):
 
 
 def show_events(update):
-    print(request_data)
-    kudago = request.kudago(request_data)
-    print(kudago)
-    pages = to_pages(kudago)
+    kudago_events = kudago.send_request(request_data)
+    pages = to_pages(kudago_events)
     send_character_page(update, pages)
 
 
