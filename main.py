@@ -1,17 +1,25 @@
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler
+from telegram_bot_pagination import InlineKeyboardPaginator
 from dotenv import dotenv_values
 import datetime as dt
 from datetime import datetime
 import re
 
 import tools
+import kudago
 
 config = dotenv_values(".env")
 
+MAX_MESSAGE_LEN = 1000
 LOCATION, DATE, TIME, REQUEST = range(4)
 SUPPORTED_CITY = ['москва']
-request_data = {}
+request_data = {
+    'city': '',
+    'date': '',
+    'date_from': '',
+    'date_to': ''
+}
 
 
 def start(update: Update, _: CallbackContext) -> None:
@@ -33,7 +41,7 @@ def check_location(city):
 def location(update: Update, _: CallbackContext) -> int:
     city = update.message.text
     if check_location(city):
-        request_data['city'] = city
+        request_data['city'] = city.lower()
         update.message.reply_text(
             f'Поиск будет производиться по городу {city.lower().capitalize()}'
         )
@@ -68,6 +76,7 @@ def date(update: Update, _: CallbackContext) -> int:
     else:
         try:
             req_date = datetime.strptime(answer, '%d.%m')
+            req_date = req_date.replace(year=datetime.today().year)
         except Exception as e:
             update.message.reply_text(
                 'Я не понимаю формат. Укажи дату в формате ДД.ММ \n'
@@ -145,15 +154,15 @@ def time(update: Update, _: CallbackContext) -> int:
     mess = update.message.text
     req_time = request_data['date']
     if mess == 'Утро':
-        req_from = req_time.replace(hour=6)
-        req_to = req_time.replace(hour=12)
+        req_from = req_time.replace(hour=6, minute=0)
+        req_to = req_time.replace(hour=12, minute=0)
     elif mess == 'День':
-        req_from = req_time.replace(hour=12)
-        req_to = req_time.replace(hour=16)
+        req_from = req_time.replace(hour=12, minute=0)
+        req_to = req_time.replace(hour=16, minute=0)
     elif mess == 'Вечер':
-        req_from = req_time.replace(hour=16)
-        req_to = req_time + dt.timedelta(days=1)
-        req_to = req_to.replace(hour=6)
+        req_from = req_time.replace(hour=16, minute=0)
+        req_to = req_from + dt.timedelta(days=1)
+        req_to = req_to.replace(hour=6, minute=0)
     else:
         res = extract_time(req_time, mess)
         print(res)
@@ -168,10 +177,47 @@ def time(update: Update, _: CallbackContext) -> int:
     request_data['date_from'] = req_from
     request_data['date_to'] = req_to
     update.message.reply_text(
-        f'Поиск с {req_from.strftime("%d.%m %-H:%M")} до {req_to.strftime("%d.%m %-H:%M")}',
+        f'Поиск с {req_from.strftime("%d.%m %H:%M")} до {req_to.strftime("%d.%m %H:%M")}',
         reply_markup=ReplyKeyboardRemove()
     )
+
+    show_events(update)
     return ConversationHandler.END
+
+
+def to_pages(messages):
+    curr_len = 0
+    num_pages = 0
+    pages = []
+    for message in messages:
+        if curr_len + len(message) > MAX_MESSAGE_LEN or len(pages) == 0:
+            num_pages += 1
+            curr_len = len(message)
+            pages.append(message)
+        else:
+            pages[num_pages - 1] += message
+            curr_len += len(message)
+    return pages
+
+
+def show_events(update):
+    kudago_events = kudago.send_request(request_data)
+    pages = to_pages(kudago_events)
+    send_character_page(update, pages)
+
+
+def send_character_page(update, pages, page=1):
+    paginator = InlineKeyboardPaginator(
+        len(pages),
+        current_page=page,
+        data_pattern='character#{page}'
+    )
+
+    update.message.reply_text(
+        pages[page - 1],
+        reply_markup=paginator.markup,
+        parse_mode='Markdown'
+    )
 
 
 def cancel(update: Update, _: CallbackContext) -> int:
