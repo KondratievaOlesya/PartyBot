@@ -21,7 +21,12 @@ request_data = {
     'date_from': '',
     'date_to': ''
 }
-logging.basicConfig(filename=config['LOG_FILE'], encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(
+    filename=config['LOG_FILE'],
+    encoding='utf-8',
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s:%(message)s'
+)
 
 
 def start(update: Update, _: CallbackContext) -> None:
