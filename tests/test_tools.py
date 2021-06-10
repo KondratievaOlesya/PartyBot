@@ -1,7 +1,5 @@
 import unittest
 import tools
-from datetime import datetime
-import datetime as dt
 
 
 class TestTools(unittest.TestCase):
