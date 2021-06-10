@@ -2,10 +2,7 @@
 import datetime
 import requests
 import logging
-from dotenv import dotenv_values
 
-config = dotenv_values(".env")
-logging.basicConfig(filename=config['LOG_FILE'], encoding='utf-8', level=logging.DEBUG)
 LOCATION = {
     'москва': 'msk'
 }

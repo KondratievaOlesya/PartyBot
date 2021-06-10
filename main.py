@@ -21,12 +21,6 @@ request_data = {
     'date_from': '',
     'date_to': ''
 }
-logging.basicConfig(
-    filename=config['LOG_FILE'],
-    encoding='utf-8',
-    level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s:%(message)s'
-)
 
 
 def start(update: Update, _: CallbackContext) -> None:
@@ -205,7 +199,7 @@ def to_pages(messages):
 
 
 def show_events(update):
-    logging.info(f'[{datetime.now().strftime("%d.%m %H:%M:%S")}] Requests with {request_data}.')
+    logging.info(f'Requests with {request_data}.')
     kudago_events = kudago.send_request(request_data)
     pages = to_pages(kudago_events)
     send_character_page(update, pages)
@@ -241,6 +235,13 @@ def help_command(update: Update, _: CallbackContext) -> None:
 
 def main() -> None:
     """Start the bot."""
+    logging.basicConfig(
+        filename=config['LOG_FILE'],
+        encoding='utf-8',
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s:%(message)s'
+    )
+
     updater = Updater(config['TOKEN'])
     dispatcher = updater.dispatcher
 
