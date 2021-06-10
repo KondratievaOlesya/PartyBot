@@ -5,6 +5,7 @@ from dotenv import dotenv_values
 import datetime as dt
 from datetime import datetime
 import re
+import logging
 
 import tools
 import kudago
@@ -122,7 +123,6 @@ def extract_time(req_date, message):
         if re.fullmatch(reg, message) is not None:
             matched = True
             times = re.findall(time_reg, message)
-            print(times)
             if len(times) == 2:
                 from_h, from_m = get_hours_minutes(times[0])
                 to_h, to_m = get_hours_minutes(times[1])
@@ -165,7 +165,6 @@ def time(update: Update, _: CallbackContext) -> int:
         req_to = req_to.replace(hour=6, minute=0)
     else:
         res = extract_time(req_time, mess)
-        print(res)
         if res is not None:
             req_from, req_to = res
         else:
@@ -180,7 +179,6 @@ def time(update: Update, _: CallbackContext) -> int:
         f'Поиск с {req_from.strftime("%d.%m %H:%M")} до {req_to.strftime("%d.%m %H:%M")}',
         reply_markup=ReplyKeyboardRemove()
     )
-
     show_events(update)
     return ConversationHandler.END
 
@@ -201,6 +199,7 @@ def to_pages(messages):
 
 
 def show_events(update):
+    logging.info(f'Requests with {request_data}.')
     kudago_events = kudago.send_request(request_data)
     pages = to_pages(kudago_events)
     send_character_page(update, pages)
@@ -236,6 +235,13 @@ def help_command(update: Update, _: CallbackContext) -> None:
 
 def main() -> None:
     """Start the bot."""
+    logging.basicConfig(
+        filename=config['LOG_FILE'],
+        encoding='utf-8',
+        level=logging.INFO,
+        format='%(asctime)s %(levelname)s:%(message)s'
+    )
+
     updater = Updater(config['TOKEN'])
     dispatcher = updater.dispatcher
 
