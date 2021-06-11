@@ -49,7 +49,7 @@ def task_sdist():
 
 def task_wheel():
     return {
-        'actions': ['python -m partybot -w'],
+        'actions': ['python -m build'],
     }
 
 
