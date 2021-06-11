@@ -101,9 +101,10 @@ def create_price(event):
     if has_number(event['is_free']):
         price = event['is_free'] + '. ' + event['price']
     else:
-        if event['is_free'] == 'true' or event['is_free'] is True:
-            if not has_number(event['price']):
-                price = 'Вход свободный'
+        if \
+                (event['is_free'] == 'true' or event['is_free'] is True) \
+                and not has_number(event['price']):
+            price = 'Вход свободный'
         else:
             price = event['price']
     return price
