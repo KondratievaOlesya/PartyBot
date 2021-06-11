@@ -1,7 +1,7 @@
 """Request to https://kudago.com/ for events"""
 import datetime
-import requests
 import logging
+import requests
 
 LOCATION = {
     'москва': 'msk'
@@ -47,11 +47,11 @@ def get_dates(dates, date_from, date_to):
     for element in dates:
         try:
             start = datetime.datetime.utcfromtimestamp(element['start'])
-        except OSError as error:
+        except OSError:
             start = ''
         try:
             end = datetime.datetime.utcfromtimestamp(element['end'])
-        except OSError as error:
+        except OSError:
             end = ''
 
         if in_range(start, date_from, date_to) or end > date_to:
@@ -101,8 +101,9 @@ def create_price(event):
     if has_number(event['is_free']):
         price = event['is_free'] + '. ' + event['price']
     else:
-        if (event['is_free'] == 'true' or event['is_free'] is True) and not has_number(event['price']):
-            price = 'Вход свободный'
+        if event['is_free'] == 'true' or event['is_free'] is True:
+            if not has_number(event['price']):
+                price = 'Вход свободный'
         else:
             price = event['price']
     return price
@@ -137,7 +138,7 @@ def parse_response(message, req):
             )
             result.append(response_message)
         except Exception as error:
-            pass
+            logging.error('When parsing event error occur: %s', error)
         count += 1
     return result
 
@@ -168,7 +169,7 @@ def send_request(user_request):
         date_from=date_from,
         date_to=date_to
     )
-    logging.info(f'[KUDAGO] Requests to {request_link}.')
+    logging.info('[KUDAGO] Requests to %s .', request_link)
     response = requests.get(request_link)
     messages = response.json()
     result = parse_response(messages, user_request)
