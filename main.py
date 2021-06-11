@@ -128,7 +128,7 @@ def extract_time(req_date, message):
                 to_h, to_m = get_hours_minutes(times[1])
                 req_from = req_date.replace(hour=from_h, minute=from_m)
                 req_to = req_date.replace(hour=to_h, minute=to_m)
-                if req_from < req_to:
+                if req_from > req_to:
                     req_to += dt.timedelta(days=1)
             elif len(times) == 1:
                 if 'до' == reg[:2]:

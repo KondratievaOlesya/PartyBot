@@ -85,7 +85,7 @@ def has_number(string):
     :param string: String to check
     :return: bool
     """
-    if string is str:
+    if isinstance(string, str):
         return any(char.isdigit() for char in string)
     return False
 
@@ -101,8 +101,8 @@ def create_price(event):
     if has_number(event['is_free']):
         price = event['is_free'] + '. ' + event['price']
     else:
-        if event['is_free'] == 'true' and not has_number(event['price']):
-            price = 'Вход свободный.'
+        if (event['is_free'] == 'true' or event['is_free'] is True) and not has_number(event['price']):
+            price = 'Вход свободный'
         else:
             price = event['price']
     return price
