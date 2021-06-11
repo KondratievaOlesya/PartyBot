@@ -1,0 +1,31 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, Kondratieva Olesya, Pahnina Yulia, Kudina Sofia
+# This file is distributed under the same license as the PartyBot package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PartyBot \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-06-11 08:14+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../request.rst:2
+msgid "Поддерживаемые ресурсы"
+msgstr "Supported resources"
+
+#: ../../request.rst:3
+msgid ""
+"**kudago** - Бот собирает информацию о мероприятиях с сайта kudago.ru на "
+"определенное время, указанное пользователем."
+msgstr ""
+"**kudago** - The bot collects information about events from the site kudago.ru for "
+"a certain time specified by the user."
+

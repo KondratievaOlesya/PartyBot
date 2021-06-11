@@ -1,0 +1,62 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2021, Kondratieva Olesya, Pahnina Yulia, Kudina Sofia
+# This file is distributed under the same license as the PartyBot package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PartyBot \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-06-11 08:14+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../bot.rst:2
+msgid "PartyBot"
+msgstr "PartyBot"
+
+#: ../../bot.rst:4
+msgid ""
+"Бот, структурирующий информацию об общественно-развлекательных "
+"мероприятиях, используя информацию из различных источников."
+msgstr ""
+"A bot that structures information about public entertainment events "
+"using information from a variety of sources. ""
+
+#: ../../bot.rst:8
+msgid ""
+"Теперь, вместо того чтобы просматривать множество различных сервисов, "
+"можно воспользоваться ботом, который сортирует данную информацию и выдаёт"
+" потребителю необходимое ему по заданным входным данным "
+"(время/место/дата)."
+msgstr ""
+"Now, instead of viewing many different services, "
+"you can use a bot that sorts this information and gives"
+" the consumer what he needs according to the given input data "
+"(time / place / date)."
+
+#: ../../bot.rst:15
+msgid "Команды бота"
+msgstr "Bot commands"
+
+#: ../../bot.rst:16
+msgid "**/start** - Запуск бота для поиска мероприятий"
+msgstr "**/start** - Start a bot to search evens"
+
+#: ../../bot.rst:17
+msgid ""
+"**/cancel** - Приостановка работы бота. Для того, чтобы начать заново "
+"введите **/start**"
+msgstr "**/cancel** - Stop bot. To restart "
+"enter **/start**"
+
+#: ../../bot.rst:18
+msgid "**/help** - Вызов сообщения с описанием команд."
+msgstr "**/help** - Call a message with a description of commands."
+
