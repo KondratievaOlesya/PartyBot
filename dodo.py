@@ -49,7 +49,7 @@ def task_sdist():
 
 def task_wheel():
     return {
-        'actions': ['python -m build -w'],
+        'actions': ['python -m build'],
     }
 
 
