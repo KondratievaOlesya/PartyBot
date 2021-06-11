@@ -1,5 +1,5 @@
 import unittest
-import tools
+from partybot import tools
 
 
 class TestTools(unittest.TestCase):

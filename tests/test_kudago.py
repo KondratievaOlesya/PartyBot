@@ -1,5 +1,5 @@
 import unittest
-import kudago
+from partybot import kudago
 from datetime import datetime
 import datetime as dt
 
