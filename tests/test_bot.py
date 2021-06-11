@@ -1,5 +1,5 @@
 import unittest
-import main
+from partybot import bot
 from datetime import datetime
 
 
@@ -9,16 +9,16 @@ def stod(string):
 
 class TestTools(unittest.TestCase):
     def test_get_hours_minutes(self):
-        h, m = main.get_hours_minutes('10')
+        h, m = bot.get_hours_minutes('10')
         self.assertEqual(h, 10)
         self.assertEqual(m, 0)
-        h, m = main.get_hours_minutes('10:01')
+        h, m = bot.get_hours_minutes('10:01')
         self.assertEqual(h, 10)
         self.assertEqual(m, 1)
-        h, m = main.get_hours_minutes(' 10 : 05 ')
+        h, m = bot.get_hours_minutes(' 10 : 05 ')
         self.assertEqual(h, 10)
         self.assertEqual(m, 5)
-        h, m = main.get_hours_minutes('10:1')
+        h, m = bot.get_hours_minutes('10:1')
         self.assertEqual(h, 10)
         self.assertEqual(m, 1)
 
@@ -43,7 +43,7 @@ class TestTools(unittest.TestCase):
             None
         ]
         for i in range(len(test_str)):
-            self.assertEqual(main.extract_time(req_time, test_str[i]), results[i])
+            self.assertEqual(bot.extract_time(req_time, test_str[i]), results[i])
 
 
 if __name__ == '__main__':

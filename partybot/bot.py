@@ -1,6 +1,5 @@
 """PartyBot main functional"""
 import datetime as dt
-from datetime import datetime
 import re
 import logging
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -9,9 +8,7 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, \
 from telegram_bot_pagination import InlineKeyboardPaginator
 from dotenv import dotenv_values
 
-
-import tools
-import kudago
+from partybot import kudago, tools
 
 config = dotenv_values(".env")
 
@@ -20,7 +17,7 @@ LOCATION, DATE, TIME, REQUEST = range(4)
 SUPPORTED_CITY = ['москва']
 request_data = {
     'city': '',
-    'date': datetime.min,
+    'date': dt.datetime.min,
     'date_from': '',
     'date_to': ''
 }
@@ -100,9 +97,9 @@ def date(update, _):
 
     answer = update.message.text
     if answer == 'Сегодня':
-        req_date = datetime.now()
+        req_date = dt.datetime.now()
     elif answer == 'Завтра':
-        req_date = datetime.now() + dt.timedelta(days=1)
+        req_date = dt.datetime.now() + dt.timedelta(days=1)
     elif answer == 'Дата':
         update.message.reply_text(
             'Укажи дату в формате ДД.ММ \n',
@@ -111,8 +108,8 @@ def date(update, _):
         return DATE
     else:
         try:
-            req_date = datetime.strptime(answer, '%d.%m')
-            req_date = req_date.replace(year=datetime.today().year)
+            req_date = dt.datetime.strptime(answer, '%d.%m')
+            req_date = req_date.replace(year=dt.datetime.today().year)
         except Exception:
             update.message.reply_text(
                 'Я не понимаю формат. Укажи дату в формате ДД.ММ \n'
@@ -153,7 +150,7 @@ def extract_time(req_date, message):
     """
     Extract time from message to datetime
 
-    :param datetime.date req_date: Date to search events
+    :param dt.datetime.date req_date: Date to search events
     :param string message: Reply message
 
     :return: two dates - from and to if it is possible to parse, None otherwise
@@ -209,7 +206,9 @@ def time(update, _):
     """
 
     mess = update.message.text
-    req_time = request_data['date'].astype('datetime64[M]')
+    req_time = request_data['date']
+    if not isinstance(req_time, dt.datetime):
+        raise ValueError('Date is not in correct format!')
     if mess == 'Утро':
         req_from = req_time.replace(hour=6, minute=0)
         req_to = req_time.replace(hour=12, minute=0)
@@ -252,7 +251,7 @@ def to_pages(messages):
     num_pages = 0
     pages = []
     for message in messages:
-        if curr_len + len(message) > MAX_MESSAGE_LEN or len(pages) == 0:
+        if (curr_len + len(message)) > MAX_MESSAGE_LEN or len(pages) == 0:
             num_pages += 1
             curr_len = len(message)
             pages.append(message)
