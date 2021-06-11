@@ -25,7 +25,7 @@ def task_html():
 def task_html_translated():
     """Make HTML documentation."""
     return {
-        'actions': ['sphinx-autobuild doc doc/_build/html'],
+        'actions': ['sphinx-build doc doc/_build/html -b html -D language=\'en\''],
     }
 
 
